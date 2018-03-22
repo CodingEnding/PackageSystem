@@ -11,7 +11,6 @@ import com.ending.packagesystem.po.AppPO;
 import com.ending.packagesystem.utils.DBUtils;
 
 public class AppDao {
-	
 	/**
 	 * 根据id获取App
 	 * @param id
@@ -41,6 +40,37 @@ public class AppDao {
 		}
 		return app;
 	}
+	
+	/**
+	 * 根据应用名获取App
+	 * @param name
+	 * @return
+	 */
+	public AppPO findAppByName(String name){
+		Connection connection=null;
+		AppPO app=new AppPO();
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from App where app_name=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,name);
+			ResultSet resultSet=statement.executeQuery();
+			if(resultSet.next()){
+				app.setId(resultSet.getInt("id"));
+				app.setName(resultSet.getString("app_name"));
+				app.setFreeFlowType(resultSet.getInt("free_flow_type"));
+				app.setTypeId(resultSet.getInt("type_id"));
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		return app;
+	}
+	
 	
 	/**
 	 * 查询所有的App

@@ -4,7 +4,7 @@ package com.ending.packagesystem.po;
  * 套餐流量特权表（FlowPrivilege）
  * @author CodingEnding
  */
-public class FlowPrivilege {
+public class FlowPrivilegePO {
 	private int id;
 	private int appId;//（外键）免流的应用Id
 	private int packageId;//（外键）免流的套餐列表Id

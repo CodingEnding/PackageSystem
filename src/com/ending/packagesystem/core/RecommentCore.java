@@ -9,8 +9,10 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-
+import com.ending.packagesystem.po.AppPO;
 import com.ending.packagesystem.po.PackagePO;
+import com.ending.packagesystem.service.AppService;
+import com.ending.packagesystem.service.FlowPrivilegeService;
 import com.ending.packagesystem.service.PackageService;
 import com.ending.packagesystem.utils.MathUtils;
 import com.ending.packagesystem.vo.FlowConsumeVO;
@@ -32,23 +34,35 @@ public class RecommentCore {
 	public static final int MONTH_DAY=30;//一个月的天数
 	
 	private static RecommentCore recommentCore=new RecommentCore();
-	private static List<PackagePO> allPackageList;//装载所有的套餐
 
 	private RecommentCore(){}
 	
-	/********************内部方法********************/
+	
+	/*******************以下是提供给外部的方法********************/
+	/**
+	 * 根据用户的通话时长/流量消耗返回推荐结果（套餐列表）
+	 * @param userConsume 用户消费
+	 * @return List<PackagePO>
+	 */
+	public static List<PackageVO> recomment(UserConsumeVO userConsume){
+		return recommentCore.recomment_(userConsume);
+	}
+	
+	
+	/***********************以下为内部方法************************/
 	//返回推荐结果（套餐列表）
 	private List<PackageVO> recomment_(UserConsumeVO userConsume){
-		List<PackageVO> packageList=new ArrayList<>();
+		List<PackageVO> packageList=new ArrayList<>();//最终返回的推荐套餐列表
 		PackageService packageService=new PackageService();
-		allPackageList=packageService.getAllPackage();
 		Set<PackageConsume> consumeSet=new TreeSet<>();//存储套餐和它需要消耗的费用（自然排序）
 		
-//		System.out.println("allPackageList:"+allPackageList.size());//TODO
 		int callTime=userConsume.getCallTime();//通话时长
 		int totalFlow=userConsume.getAllFlow();//总的流量消耗量
 		int provinceOutDay=userConsume.getProvinceOutDay();//每月在省外的天数
 		List<FlowConsumeVO> flowConsumeList=userConsume.getFlowConsumeList();//各个应用的流量消耗
+		
+		List<String> operatorList=userConsume.getOperatorList();//需要推荐的运营商列表
+		List<PackagePO> allPackageList=packageService.getAllPackageByOperator(operatorList);//所有的套餐（可能通过运营商筛选）
 		
 		for(int i=0;i<allPackageList.size();i++){
 			PackagePO packagePO=allPackageList.get(i);
@@ -68,7 +82,6 @@ public class RecommentCore {
 			packageList.add(PackageVO.build(packagePO,extraFlowType,temp.getConsume()));
 			count++;
 		}
-//		System.out.println("packageList:"+packageList.size());//TODO
 		return packageList;
 	}
 	
@@ -83,11 +96,24 @@ public class RecommentCore {
 	private double calcuteFlowConsume(PackagePO packagePO,int provinceOutDay,
 			int totalFlow,List<FlowConsumeVO> flowConsumeList){
 		double flowConsume=0;
+		
+		//TODO 必须加快计算速度
+		if(packagePO.getFreeFlowType()==1&&flowConsumeList.size()>0){//剔除免费流量
+			//考虑套餐免流应用的影响
+			AppService appService=new AppService();//TODO 优化：是否可以作为全局变量
+			FlowPrivilegeService flowPrivilegeService=new FlowPrivilegeService();//TODO 优化：是否可以作为全局变量
+			for(FlowConsumeVO flowConsumeVO:flowConsumeList){
+				AppPO appPO=appService.getAppByName(flowConsumeVO.getAppName());
+				if(flowPrivilegeService.exist(appPO.getId(),packagePO.getId())){
+					totalFlow-=flowConsumeVO.getAppFlow();//存在免流特权就除去这部分应用流量
+				}
+			}
+		}
+		
+		totalFlow=MathUtils.positiveNum(totalFlow);//避免数值为0
 		int leaveProvinceOutFlow=totalFlow*provinceOutDay/MONTH_DAY;//剩余需要介入计费的省外流量
 		int leaveProvinceInFlow=totalFlow-leaveProvinceOutFlow;//剩余需要介入计费的省内流量
-		if(packagePO.getFreeFlowType()==1&&flowConsumeList.size()>0){//剔除免费流量
-			//TODO 增加免流应用的影响
-		}
+		
 		leaveProvinceInFlow-=packagePO.getPackageProvinceFlow();//剔除套餐内省内流量
 		leaveProvinceInFlow=MathUtils.positiveNum(leaveProvinceInFlow);//避免小于0
 		int leaveTotalFlow=MathUtils.positiveNum(leaveProvinceOutFlow+
@@ -204,24 +230,7 @@ public class RecommentCore {
 		if(callTime>packageCallTime){
 			callConsume=extraPackageCall*(callTime-packageCallTime);
 		}
-//		if(packagePO.getId()==131){//TODO
-//			System.out.println("callTime:"+callTime);
-//			System.out.println("packageCallTime:"+packageCallTime);
-//			System.out.println("extraPackageCall:"+extraPackageCall);
-//			System.out.println("callConsume:"+callConsume);
-//		}
 		return callConsume;
 	}
 	
-
-	/*******************以下是提供给外部的方法********************/
-	
-	/**
-	 * 返回推荐结果（套餐列表）
-	 * @param userConsume 用户消费
-	 * @return List<PackagePO>
-	 */
-	public static List<PackageVO> recomment(UserConsumeVO userConsume){
-		return recommentCore.recomment_(userConsume);
-	}
 }

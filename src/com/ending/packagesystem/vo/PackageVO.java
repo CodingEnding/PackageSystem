@@ -45,7 +45,7 @@ public class PackageVO {
 		PackageVO packageVO=new PackageVO();
 		packageVO.setId(packagePO.getId());
 		packageVO.setName(packagePO.getName());
-		packageVO.setPartner(packagePO.getOperator());
+		packageVO.setPartner(packagePO.getPartner());
 		packageVO.setOperator(packagePO.getOperator());
 		packageVO.setMonthRent(packagePO.getMonthRent());
 		packageVO.setPackageCountryFlow(packagePO.getPackageCountryFlow());

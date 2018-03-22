@@ -25,12 +25,14 @@ import com.google.gson.Gson;
  * @author CodingEnding
  */
 @WebServlet(urlPatterns={"/api/v1/package/recommend",
-			"/api/v1/package/list","/api/v1/package/get"})
+			"/api/v1/package/list","/api/v1/package/get",
+			"/api/v1/package/score"})
 public class PackageServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     public static final String URL_RECOMMEND="/api/v1/package/recommend";//请求推荐（POST）
     public static final String URL_LIST="/api/v1/package/list";//批量获取套餐（GET）
     public static final String URL_GET="/api/v1/package/get";//获取指定名称的套餐（GET）
+    public static final String URL_SCORE="/api/v1/package/score";//对指定的套餐进行评分（POST）
     
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -41,9 +43,13 @@ public class PackageServlet extends HttpServlet {
 		case URL_RECOMMEND:
 			response.setStatus(405);
 			break;
+		case URL_SCORE:
+			response.setStatus(405);
+			break;
 		case URL_LIST:
 			break;
 		case URL_GET:
+			doSearch(request,response);
 			break;
 		default:
 			response.getWriter().append("Served at: ")
@@ -56,17 +62,29 @@ public class PackageServlet extends HttpServlet {
 	//执行推荐操作
 	private void doRecommend(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		BufferedReader br=new BufferedReader(new InputStreamReader(request.getInputStream()));
-		//String flow=request.getParameter("total_flow");
-		String postBody=IOUtils.read(br);
+		String postBody=IOUtils.read(br);//将上传的post body读取出来
 		br.close();
 		UserConsumeVO userConsumeVO=new Gson()
 				.fromJson(postBody,UserConsumeVO.class);//解析JSON数据
+		
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json;charset=utf-8");
+		
+		//将结果以json格式返回
 		List<PackageVO> dataList=RecommentCore.recomment(userConsumeVO);
 		String dataJSON=new Gson().toJson(dataList);
 		response.setStatus(200);
 		response.getWriter().append(dataJSON);
+	}
+	
+	//执行对套餐的评分操作
+	private void doScore(HttpServletRequest request,HttpServletResponse response){
+		//TODO 补充完整
+	}
+	
+	//执行对指定套餐的查询
+	private void doSearch(HttpServletRequest request,HttpServletResponse response){
+		//TODO 补充完整
 	}
 	
 	/**
@@ -75,10 +93,16 @@ public class PackageServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//doGet(request, response);
 		String servletPath=request.getServletPath();
-		if(servletPath.equals(URL_RECOMMEND)){
+		switch (servletPath) {
+		case URL_RECOMMEND:
 			doRecommend(request, response);
-		}else{
+			break;
+		case URL_SCORE:
+			doScore(request, response);
+			break;
+		default:
 			doGet(request, response);
+			break;
 		}
 	}
 

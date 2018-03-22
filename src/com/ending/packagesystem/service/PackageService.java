@@ -21,6 +21,14 @@ public class PackageService {
 	}
 	
 	/**
+	 * 获取指定运营商的所有套餐
+	 * @return List<PackagePO>
+	 */
+	public List<PackagePO> getAllPackageByOperator(List<String> operatorList){
+		return packageDao.findAllByOperator(operatorList);
+	}
+	
+	/**
 	 * 获取指定id的套餐
 	 * @param id
 	 * @return 指定套餐
@@ -28,4 +36,5 @@ public class PackageService {
 	public PackagePO getPackageById(int id){
 		return packageDao.findPackageById(id);
 	}
+	
 }

@@ -39,6 +39,51 @@ public class PackageDao {
 	}
 	
 	/**
+	 * 根据运营商返回相应的套餐列表
+	 * @param operatorArray 运营商
+	 * @return 套餐列表
+	 */
+	public List<PackagePO> findAllByOperator(List<String> operatorList){
+		List<PackagePO> packageList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			int operatorSize=operatorList.size();
+			PreparedStatement statement=null;
+			if(operatorSize==1){//参数个数不同sql也不同
+				String sql="select * from package where operator=?";
+			    statement=connection.prepareStatement(sql);
+				statement.setString(1,operatorList.get(0));
+			}else if(operatorSize==2){
+				String sql="select * from package where operator=? or operator=?";
+			    statement=connection.prepareStatement(sql);
+				statement.setString(1,operatorList.get(0));
+				statement.setString(2,operatorList.get(1));
+			}else{
+				String sql="select * from package where operator=? or operator=? or operator=?";
+				statement=connection.prepareStatement(sql);
+				statement.setString(1,operatorList.get(0));
+				statement.setString(2,operatorList.get(1));
+				statement.setString(3,operatorList.get(2));
+			}
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO,resultSet);
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		
+		return packageList;
+	}
+	
+	/**
 	 * 返回所有的套餐
 	 * @return List<PackagePO>
 	 */
