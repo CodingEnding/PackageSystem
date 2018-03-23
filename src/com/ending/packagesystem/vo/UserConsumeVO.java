@@ -44,9 +44,20 @@ public class UserConsumeVO {
 	private String deviceFinger;//设备唯一标识
 	@SerializedName("operator")
 	private List<String> operatorList;//需要推荐的运营商套餐
+	@SerializedName("recommend_mode")
+	private int recommendMode;//推荐模式
 	@SerializedName("flow_consume")
 	private List<FlowConsumeVO> flowConsumeList;//应用流量消费列表
 	
+	public static final int RECOMMEND_MODE_NORMAL=0;//常规推荐模式（不考虑套餐免流应用的影响）
+	public static final int RECOMMEND_MODE_ADVANCED=1;//高级推荐模式（考虑套餐免流应用的影响）
+	
+	public int getRecommendMode() {
+		return recommendMode;
+	}
+	public void setRecommendMode(int recommendMode) {
+		this.recommendMode = recommendMode;
+	}
 	public int getCallTime() {
 		return callTime;
 	}

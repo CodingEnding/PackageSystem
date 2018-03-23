@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.po.PackagePO;
 import com.ending.packagesystem.utils.DBUtils;
 
@@ -19,6 +20,7 @@ public class PackageDao {
 	public PackagePO findPackageById(int id){
 		Connection connection=null;
 		PackagePO packagePO=new PackagePO();
+		packagePO.setId(Constants.QUERY_ERROR_ID);//将默认设置为异常值，在查询失败时调用者可以察觉
 		try {
 			connection=DBUtils.getConnection();
 			String sql="select * from package where id=?";

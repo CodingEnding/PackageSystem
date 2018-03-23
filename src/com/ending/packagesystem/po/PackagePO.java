@@ -29,7 +29,10 @@ public class PackagePO {
 	private String url;//官方的说明链接
 	private String remark;//备注
 	private int abandon;//是否停办
-	private int freeFlowType;//是否有免流范围
+	private int freeFlowType;//是否有免流应用
+	
+	public static final int FLOW_TYPE_NONE=0;//不存在套餐内免流应用
+	public static final int FLOW_TYPE_FREE=1;//存在套餐内免流应用
 	
 	public int getId() {
 		return id;

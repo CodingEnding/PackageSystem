@@ -33,6 +33,11 @@ public class RecommentCore {
 	public static final int EXTRA_FLOW_TYPE_SEVEN=7;//形式：省内日租3元无限流量 省外日租2元800M
 	public static final int MONTH_DAY=30;//一个月的天数
 	
+	public static final int RECOMMEND_COUNT=15;//返回的推荐套餐数目
+	
+	private AppService appService=new AppService();
+	private FlowPrivilegeService flowPrivilegeService=new FlowPrivilegeService();
+	
 	private static RecommentCore recommentCore=new RecommentCore();
 
 	private RecommentCore(){}
@@ -59,23 +64,27 @@ public class RecommentCore {
 		int callTime=userConsume.getCallTime();//通话时长
 		int totalFlow=userConsume.getAllFlow();//总的流量消耗量
 		int provinceOutDay=userConsume.getProvinceOutDay();//每月在省外的天数
+		int recommendMode=userConsume.getRecommendMode();//推荐模式
 		List<FlowConsumeVO> flowConsumeList=userConsume.getFlowConsumeList();//各个应用的流量消耗
 		
 		List<String> operatorList=userConsume.getOperatorList();//需要推荐的运营商列表
 		List<PackagePO> allPackageList=packageService.getAllPackageByOperator(operatorList);//所有的套餐（可能通过运营商筛选）
 		
+		//循环计算每种套餐的预计月度消费
 		for(int i=0;i<allPackageList.size();i++){
 			PackagePO packagePO=allPackageList.get(i);
 			double consume=calcuteCallConsume(packagePO,callTime)+
-					calcuteFlowConsume(packagePO, provinceOutDay, 
-					totalFlow, flowConsumeList)+packagePO.getMonthRent();
+					calcuteFlowConsume(packagePO,provinceOutDay,recommendMode, 
+						totalFlow,flowConsumeList)+packagePO.getMonthRent();
 			PackageConsume packageConsume=new PackageConsume(packagePO.getId(),
-					packagePO.getName(),consume);
+					packagePO.getName(),consume);//封装套餐Id和月消费
 			consumeSet.add(packageConsume);
 		}
+		
+		//从所有套餐中取TOP-N个套餐作为推荐套餐
 		Iterator<PackageConsume> iterator=consumeSet.iterator();
 		int count=0;
-		while(iterator.hasNext()&&count<15){
+		while(iterator.hasNext()&&count<RECOMMEND_COUNT){
 			PackageConsume temp=iterator.next();
 			PackagePO packagePO=packageService.getPackageById(temp.getPackageId());
 			int extraFlowType=packagePO.getExtraFlowTypeId();//TODO 暂时进行这样的快捷处理（因为extraFlowType表中的type和id保持一致）
@@ -89,19 +98,20 @@ public class RecommentCore {
 	 * 计算指定套餐需要支付的流量费用
 	 * @param packagePO 套餐
 	 * @param provinceOutDay 在省外的天数
+	 * @param recommendMode 推荐模式
 	 * @param totalFlow 总流量
 	 * @param flowConsumeList 应用流量消耗列表
 	 * @return 需要支付的流量费用
 	 */
 	private double calcuteFlowConsume(PackagePO packagePO,int provinceOutDay,
-			int totalFlow,List<FlowConsumeVO> flowConsumeList){
+			int recommendMode,int totalFlow,List<FlowConsumeVO> flowConsumeList){
 		double flowConsume=0;
 		
-		//TODO 必须加快计算速度
-		if(packagePO.getFreeFlowType()==1&&flowConsumeList.size()>0){//剔除免费流量
+		//TODO 想办法加快计算速度
+		if(recommendMode==UserConsumeVO.RECOMMEND_MODE_ADVANCED
+				&&packagePO.getFreeFlowType()==PackagePO.FLOW_TYPE_FREE
+				&&flowConsumeList.size()>0){//剔除免费流量
 			//考虑套餐免流应用的影响
-			AppService appService=new AppService();//TODO 优化：是否可以作为全局变量
-			FlowPrivilegeService flowPrivilegeService=new FlowPrivilegeService();//TODO 优化：是否可以作为全局变量
 			for(FlowConsumeVO flowConsumeVO:flowConsumeList){
 				AppPO appPO=appService.getAppByName(flowConsumeVO.getAppName());
 				if(flowPrivilegeService.exist(appPO.getId(),packagePO.getId())){

@@ -32,4 +32,20 @@ public class MathUtils {
 		return num;
 	}
 	
+	/**
+	 * 如果num不是合法的数字就返回默认值defaultNum
+	 * @param num 字符串形式的Int
+	 * @param defaultNum 默认值
+	 * @return
+	 */
+	public static int legalIntNum(String numStr,int defaultNum){
+		int end=0;
+		try {
+			end=Integer.valueOf(numStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			end=defaultNum;//返回默认值
+		} 
+		return end;
+	}
 }
