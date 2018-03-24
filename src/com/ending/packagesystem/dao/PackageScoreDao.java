@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.ending.packagesystem.po.PackageScorePO;
 import com.ending.packagesystem.utils.DBUtils;
@@ -36,7 +38,40 @@ public class PackageScoreDao {
 		} finally {
 			DBUtils.closeConnection(connection);
 		}
-		
 		return isSucceed;
 	}
+	
+	/**
+	 * 根据套餐Id获取其所有的评分数据
+	 * @param packageId
+	 * @return List<PackageScorePO>
+	 */
+	public List<PackageScorePO> findAll(int packageId){
+		List<PackageScorePO> packageScoreList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from PackageScore where package_id=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,packageId);
+			
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackageScorePO packageScorePO=new PackageScorePO();
+				packageScorePO.setId(resultSet.getInt("id"));
+				packageScorePO.setPackageId(resultSet.getInt("package_id"));
+				packageScorePO.setScore(resultSet.getInt("score"));
+				packageScorePO.setUserId(resultSet.getInt("user_id"));
+				packageScoreList.add(packageScorePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		return packageScoreList;
+	}
+	
 }

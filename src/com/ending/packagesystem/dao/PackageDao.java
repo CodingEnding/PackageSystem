@@ -71,7 +71,41 @@ public class PackageDao {
 			ResultSet resultSet=statement.executeQuery();
 			while(resultSet.next()){
 				PackagePO packagePO=new PackagePO();
-				deployPackagePO(packagePO,resultSet);
+				deployPackagePO(packagePO,resultSet);//为PackagePO设置属性
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		
+		return packageList;
+	}
+	
+	/**
+	 * 根据关键词返回所有套餐
+	 * @param key
+	 * @return
+	 */
+	public List<PackagePO> findAllByKey(String key){
+		List<PackagePO> packageList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from Package where name like ?"
+					+ "or operator like ? or partner like ?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			String keyParameter="%"+key+"%";//传入的参数需要先添加两侧的通配符
+			statement.setString(1,keyParameter);
+			statement.setString(2,keyParameter);
+			statement.setString(3,keyParameter);
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO,resultSet);//为PackagePO设置属性
 				packageList.add(packagePO);
 			}
 		} catch (ClassNotFoundException e) {
@@ -110,6 +144,99 @@ public class PackageDao {
 			DBUtils.closeConnection(connection);
 		}
 		return packageList;
+	}
+	
+	/**
+	 * 根据排序条件，返回TOP-N个数据
+	 * @param orderColumn 作为排序依据的列名
+	 * @param limit 返回的数据条数
+	 * @return
+	 */
+	public List<PackagePO> findAllTopPackage(String orderColumn,int limit){
+		List<PackagePO> packageList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from package where operator != '中国移动' "
+					+ "order by ? DESC limit ?";//TODO 暂时不让中国移动参与排序
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,orderColumn);
+			statement.setInt(2,limit);
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO, resultSet);
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return packageList;
+	}
+	
+	/**
+	 * 更新指定Id的套餐数据
+	 * @param id
+	 * @param packagePO 封装需要更新的内容
+	 * @return
+	 */
+	public boolean updatePackageById(int id,PackagePO packagePO){
+		boolean isSucceed=false;
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="update Package set name=?,partner=?,operator=?,month_rent=?,"
+					+ "package_flow_country=?,package_flow_province=?,package_call=?,"
+					+ "extra_package_call=?,extra_flow_country=?,extra_flow_province=?,"
+					+ "extra_flow_province_out=?,extra_rent_day_country=?,extra_flow_day_country=?,"
+					+ "extra_rent_day_province_in=?,extra_flow_day_province_in=?,"
+					+ "extra_rent_day_province_out=?,extra_flow_day_province_out=?,"
+					+ "extra_flow_type_id=?,privilege_description=?,star=?,url=?,remark=?,"
+					+ "abandon=?,free_flow_type=? where id=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,packagePO.getName());
+			statement.setString(2,packagePO.getPartner());
+			statement.setString(3,packagePO.getOperator());
+			statement.setInt(4,packagePO.getMonthRent());
+			statement.setInt(5,packagePO.getPackageCountryFlow());
+			statement.setInt(6,packagePO.getPackageProvinceFlow());
+			statement.setInt(7,packagePO.getPackageCall());
+			statement.setDouble(8,packagePO.getExtraPackageCall());
+			statement.setDouble(9,packagePO.getExtraCountryFlow());
+			statement.setDouble(10,packagePO.getExtraProvinceFlow());
+			statement.setDouble(11,packagePO.getExtraProvinceOutFlow());
+			statement.setInt(12,packagePO.getExtraCountryDayRent());
+			statement.setInt(13,packagePO.getExtraCountryDayFlow());
+			statement.setInt(14,packagePO.getExtraProvinceInDayRent());
+			statement.setInt(15,packagePO.getExtraProvinceInDayFlow());
+			statement.setInt(16,packagePO.getExtraProvinceOutDayRent());
+			statement.setInt(17,packagePO.getExtraProvinceOutDayFlow());
+			statement.setInt(18,packagePO.getExtraFlowTypeId());
+			statement.setString(19,packagePO.getPrivilegeDescription());
+			statement.setDouble(20,packagePO.getStar());
+			statement.setString(21,packagePO.getUrl());
+			statement.setString(22,packagePO.getRemark());
+			statement.setInt(23,packagePO.getAbandon());
+			statement.setInt(24,packagePO.getFreeFlowType());
+			statement.setInt(25,packagePO.getId());
+			
+			int end=statement.executeUpdate();
+			if(end==1){//返回结果只应该改变一行
+				isSucceed=true;
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		
+		return isSucceed;
 	}
 	
 	//为PackagePO对象设置属性（从ResultSet中获取数据）
