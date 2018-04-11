@@ -32,8 +32,8 @@ public class UserConsumeVO {
 	private int callTime;//通话时长
 	@SerializedName("flow_all")
 	private int allFlow;//总的流量消费量
-	private int week;//第几周
-	private int month;//第几个月
+//	private int week;//第几周
+//	private int month;//第几个月
 	@SerializedName("province_out_day")
 	private int provinceOutDay;//每月在省外的时间
 	@SerializedName("device_type")
@@ -70,18 +70,18 @@ public class UserConsumeVO {
 	public void setAllFlow(int allFlow) {
 		this.allFlow = allFlow;
 	}
-	public int getWeek() {
-		return week;
-	}
-	public void setWeek(int week) {
-		this.week = week;
-	}
-	public int getMonth() {
-		return month;
-	}
-	public void setMonth(int month) {
-		this.month = month;
-	}
+//	public int getWeek() {
+//		return week;
+//	}
+//	public void setWeek(int week) {
+//		this.week = week;
+//	}
+//	public int getMonth() {
+//		return month;
+//	}
+//	public void setMonth(int month) {
+//		this.month = month;
+//	}
 	public int getProvinceOutDay() {
 		return provinceOutDay;
 	}

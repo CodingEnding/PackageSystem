@@ -16,14 +16,11 @@ import com.alibaba.dubbo.common.utils.IOUtils;
 import com.ending.packagesystem.config.Config;
 import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.config.StatusCode;
-import com.ending.packagesystem.core.PackageConsume;
 import com.ending.packagesystem.core.RecommentCore;
-import com.ending.packagesystem.po.PackagePO;
 import com.ending.packagesystem.service.PackageService;
 import com.ending.packagesystem.utils.MathUtils;
-import com.ending.packagesystem.vo.DataResponse;
 import com.ending.packagesystem.vo.BaseResponse;
-import com.ending.packagesystem.vo.FlowConsumeVO;
+import com.ending.packagesystem.vo.DataResponse;
 import com.ending.packagesystem.vo.PackageVO;
 import com.ending.packagesystem.vo.SimplePackageVO;
 import com.ending.packagesystem.vo.UserConsumeVO;
@@ -37,7 +34,7 @@ import com.google.gson.Gson;
 			"/api/v1/package/list","/api/v1/package/get",
 			"/api/v1/package/score","/api/v1/package/search",
 			"/api/v1/package/hot"})
-public class PackageServlet extends HttpServlet {
+public class PackageServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
     public static final String URL_RECOMMEND="/api/v1/package/recommend";//请求推荐（POST）
     public static final String URL_LIST="/api/v1/package/list";//批量获取套餐（GET）
@@ -53,14 +50,14 @@ public class PackageServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
 		String servletPath=request.getServletPath();
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/json;charset=utf-8");
+		initCharsetContentType(response);//设置响应的字符编码和内容格式
 		switch (servletPath) {
 		case URL_RECOMMEND:
 		case URL_SCORE:
 			response.setStatus(405);
 			break;
 		case URL_LIST:
+			doQueryCategory(request,response);
 			break;
 		case URL_HOT:
 			doQueryHot(request,response);
@@ -82,8 +79,7 @@ public class PackageServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String servletPath=request.getServletPath();
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/json;charset=utf-8");
+		initCharsetContentType(response);//设置响应的字符编码和内容格式
 		switch (servletPath) {
 		case URL_RECOMMEND:
 			doRecommend(request, response);
@@ -99,9 +95,10 @@ public class PackageServlet extends HttpServlet {
 
 	//执行推荐操作
 	private void doRecommend(HttpServletRequest request,HttpServletResponse response) throws IOException{
-		BufferedReader br=new BufferedReader(new InputStreamReader(request.getInputStream()));
-		String postBody=IOUtils.read(br);//将上传的post body读取出来
-		br.close();
+//		BufferedReader br=new BufferedReader(new InputStreamReader(request.getInputStream()));
+//		String postBody=IOUtils.read(br);//将上传的post body读取出来
+//		br.close();
+		String postBody=getPostBody(request);//将上传的post body读取出来
 		UserConsumeVO userConsumeVO=new Gson()
 				.fromJson(postBody,UserConsumeVO.class);//解析JSON数据
 		
@@ -128,6 +125,24 @@ public class PackageServlet extends HttpServlet {
 			jsonResponse=new DataResponse<List<SimplePackageVO>>(true,StatusCode.CODE_SUCCEED,dataList);
 		}
 		writeJsonToClient(jsonResponse,response);//将json数据返回给客户端
+	}
+	
+	//获取指定分类的套餐
+	private void doQueryCategory(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		String categoryName=request.getParameter("category_name");//分类名称[运营商|合作方|...]
+		String categoryValue=request.getParameter("category_value");//分类的具体值[中国联通|腾讯...]
+		int limit=MathUtils.legalIntNum(request.getParameter("limit"),Config.CATEGORY_PACKAGE_COUNT);
+		int page=MathUtils.legalIntNum(request.getParameter("page"),1);
+		
+		List<SimplePackageVO> dataList=packageService
+				.getAllSimplePackageByCategory(categoryName,categoryValue, limit, page);
+		DataResponse<List<SimplePackageVO>> jsonResponse;
+		if(dataList.isEmpty()){//此时查询结果为空
+			jsonResponse=new DataResponse<List<SimplePackageVO>>(false,StatusCode.CODE_QUERY_NONE,dataList);
+		}else{
+			jsonResponse=new DataResponse<List<SimplePackageVO>>(true,StatusCode.CODE_SUCCEED,dataList);
+		}
+		writeJsonToClient(jsonResponse, response);
 	}
 	
 	//执行对套餐的评分操作
@@ -175,12 +190,6 @@ public class PackageServlet extends HttpServlet {
 			jsonResponse=new DataResponse<List<SimplePackageVO>>(true,StatusCode.CODE_SUCCEED,simplePackageList);
 		}
 		writeJsonToClient(jsonResponse, response);//将json数据返回给客户端
-	}
-	
-	//将json数据返回给客户端
-	private void writeJsonToClient(BaseResponse jsonResponse,HttpServletResponse response) throws IOException{
-		String dataJSON=new Gson().toJson(jsonResponse);//将数据对象转化为json字符串
-		response.getWriter().append(dataJSON);
 	}
 
 }

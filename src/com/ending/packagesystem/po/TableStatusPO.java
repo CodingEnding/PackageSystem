@@ -1,6 +1,6 @@
 package com.ending.packagesystem.po;
 
-import com.sun.jmx.snmp.Timestamp;
+import java.sql.Timestamp;
 
 /**
  * 服务器各个表的状态表（TableStatus）

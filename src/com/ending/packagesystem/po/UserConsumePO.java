@@ -8,8 +8,9 @@ public class UserConsumePO {
 	private int id;
 	private int callTime;//通话时长
 	private int allFlow;//总的流量消耗
-	private int week;//第几周（1-4）
-	private int month;//第几个月（1-12）
+	private int day;//第几天（1-31）
+	private int month;//第几月（1-12）
+	private int year;//第几年（2018-）
 	private int deviceId;//（外键）设备id
 	
 	public int getId() {
@@ -30,11 +31,17 @@ public class UserConsumePO {
 	public void setAllFlow(int allFlow) {
 		this.allFlow = allFlow;
 	}
-	public int getWeek() {
-		return week;
+	public int getDay() {
+		return day;
 	}
-	public void setWeek(int week) {
-		this.week = week;
+	public void setDay(int day) {
+		this.day = day;
+	}
+	public int getYear() {
+		return year;
+	}
+	public void setYear(int year) {
+		this.year = year;
 	}
 	public int getMonth() {
 		return month;

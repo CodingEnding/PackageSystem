@@ -19,7 +19,7 @@ public class AppUpdateService {
 	private AppUpdateInfoDao appUpdateInfoDao=new AppUpdateInfoDao();
 	
 	/**
-	 * 坚持是否存在更新
+	 * 检查是否存在更新
 	 * @param apkFolderPath apk文件所在的文件夹路径
 	 * @param versionCode 客户端的版本号
 	 * @return

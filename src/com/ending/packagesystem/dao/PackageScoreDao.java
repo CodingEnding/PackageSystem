@@ -22,7 +22,7 @@ public class PackageScoreDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="insert into PackageScore(score,user_id,package_id) values(?,?,?)";
+			String sql="insert into packagescore(score,user_id,package_id) values(?,?,?)";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,packageScorePO.getScore());
 			statement.setInt(2,packageScorePO.getUserId());
@@ -51,7 +51,7 @@ public class PackageScoreDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from PackageScore where package_id=?";
+			String sql="select * from packagescore where package_id=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,packageId);
 			

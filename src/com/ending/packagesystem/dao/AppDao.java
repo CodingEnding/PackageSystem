@@ -21,7 +21,7 @@ public class AppDao {
 		AppPO app=new AppPO();
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from App where id=?";
+			String sql="select * from app where id=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,id);
 			ResultSet resultSet=statement.executeQuery();
@@ -51,7 +51,7 @@ public class AppDao {
 		AppPO app=new AppPO();
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from App where app_name=?";
+			String sql="select * from app where app_name=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,name);
 			ResultSet resultSet=statement.executeQuery();
@@ -81,7 +81,7 @@ public class AppDao {
 		List<AppPO> appList=new ArrayList<>();
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from App";
+			String sql="select * from app";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			ResultSet resultSet=statement.executeQuery();
 			while(resultSet.next()){

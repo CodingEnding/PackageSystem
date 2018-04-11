@@ -110,7 +110,7 @@ public class RecommentCore {
 		//TODO 想办法加快计算速度
 		if(recommendMode==UserConsumeVO.RECOMMEND_MODE_ADVANCED
 				&&packagePO.getFreeFlowType()==PackagePO.FLOW_TYPE_FREE
-				&&flowConsumeList.size()>0){//剔除免费流量
+				&&flowConsumeList!=null&&flowConsumeList.size()>0){//剔除免费流量
 			//考虑套餐免流应用的影响
 			for(FlowConsumeVO flowConsumeVO:flowConsumeList){
 				AppPO appPO=appService.getAppByName(flowConsumeVO.getAppName());

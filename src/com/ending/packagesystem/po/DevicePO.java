@@ -9,6 +9,7 @@ public class DevicePO {
 	private String deviceType;//机型
 	private String systemVersion;//系统版本
 	private String deviceFinger;//设备唯一识别码
+	private int userId;//（外键）用户Id（可能为空）
 	
 	public int getId() {
 		return id;
@@ -33,6 +34,12 @@ public class DevicePO {
 	}
 	public void setDeviceFinger(String deviceFinger) {
 		this.deviceFinger = deviceFinger;
+	}
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 	
 }

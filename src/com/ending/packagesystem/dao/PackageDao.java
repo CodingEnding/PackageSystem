@@ -95,7 +95,7 @@ public class PackageDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from Package where name like ?"
+			String sql="select * from package where name like ?"
 					+ "or operator like ? or partner like ?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			String keyParameter="%"+key+"%";//传入的参数需要先添加两侧的通配符
@@ -115,7 +115,43 @@ public class PackageDao {
 		} finally{
 			DBUtils.closeConnection(connection);
 		}
-		
+		return packageList;
+	}
+	
+	/**
+	 * 根据分类返回所有套餐
+	 * @param categoryName 分类名称
+	 * @param categoryValue 分类的具体值
+	 * @param limit 每页大小
+	 * @param page 页码（从1开始）
+	 * @return
+	 */
+	public List<PackagePO> findAllByCategory(String categoryName,
+			String categoryValue,int limit,int page){
+		List<PackagePO> packageList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql=String.format("select * from package where %s=? limit ? offset ?",categoryName);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,categoryValue);
+			statement.setInt(2,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(3,offsetNum);
+			
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO,resultSet);//为PackagePO设置属性
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
 		return packageList;
 	}
 	
@@ -189,7 +225,7 @@ public class PackageDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="update Package set name=?,partner=?,operator=?,month_rent=?,"
+			String sql="update package set name=?,partner=?,operator=?,month_rent=?,"
 					+ "package_flow_country=?,package_flow_province=?,package_call=?,"
 					+ "extra_package_call=?,extra_flow_country=?,extra_flow_province=?,"
 					+ "extra_flow_province_out=?,extra_rent_day_country=?,extra_flow_day_country=?,"

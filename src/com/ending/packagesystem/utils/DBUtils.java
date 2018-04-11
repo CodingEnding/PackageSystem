@@ -13,11 +13,11 @@ public class DBUtils {
 	// JDBC 驱动名及数据库 URL
 	public static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
 	public static final String DB_NAME="package_system";
-	public static final String DB_URL = "jdbc:mysql://localhost:3306/"+DB_NAME+"?characterEncoding=UTF-8";
+	public static final String DB_URL = "jdbc:mysql://localhost:3306/"+DB_NAME+"?characterEncoding=UTF8";
 
 	// 数据库的用户名与密码
-	static final String USER = "root";
-	static final String PASSWORD = ""; 
+	static final String USER = "ending";
+	static final String PASSWORD = "15882334593"; 
 
 	
 	/**

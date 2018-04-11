@@ -13,6 +13,7 @@ public class SimplePackageVO {
 	private String operator;//运营商
 	private double star;//评分
 	private int freeFlowType;//是否有免流范围
+	private int monthRent;//月租
 	
 	/**
 	 * 快速构造SimplePackageVO对象
@@ -22,22 +23,31 @@ public class SimplePackageVO {
 	public static SimplePackageVO build(PackagePO packagePO){
 		return new SimplePackageVO(packagePO.getId(),packagePO.getName(),
 				packagePO.getPartner(),packagePO.getOperator(),
-				packagePO.getStar(),packagePO.getFreeFlowType());
+				packagePO.getStar(),packagePO.getFreeFlowType(),packagePO.getMonthRent());
 	}
 	
 	public SimplePackageVO() {
 	}
 	
 	public SimplePackageVO(int id, String name, String partner, 
-			String operator, double star, int freeFlowType) {
+			String operator, double star, int freeFlowType,int monthRent) {
 		this.id = id;
 		this.name = name;
 		this.partner = partner;
 		this.operator = operator;
 		this.star = star;
 		this.freeFlowType = freeFlowType;
+		this.monthRent=monthRent;
 	}
 	
+	public int getMonthRent() {
+		return monthRent;
+	}
+
+	public void setMonthRent(int monthRent) {
+		this.monthRent = monthRent;
+	}
+
 	public int getId() {
 		return id;
 	}

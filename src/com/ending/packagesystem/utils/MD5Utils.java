@@ -7,9 +7,11 @@ import java.security.MessageDigest;
 public class MD5Utils {
 	private MD5Utils(){}
 	
+	//十六进制下数字到字符的映射数组
 	private static final char HEX_DIGITS[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F' };
 
+	//转换字节数组为16进制字串
     public static String toHexString(byte[] b) {
         StringBuilder sb = new StringBuilder(b.length * 2);
         for (int i = 0; i < b.length; i++) {
@@ -19,6 +21,7 @@ public class MD5Utils {
         return sb.toString();
     }
 
+    //获取文件的md5值
     public static String md5sum(String filename) {
         InputStream fis;
         byte[] buffer = new byte[1024];
@@ -38,4 +41,20 @@ public class MD5Utils {
             return "";
         }
     }
+    
+    //获取字符串的md5
+    public static String encodeString(String originString) {
+        if (originString != null){
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] results = md.digest(originString.getBytes());
+                String resultString = toHexString(results);
+                return TextUtils.isEmpty(resultString) ? "" :resultString.toUpperCase();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+    
 }

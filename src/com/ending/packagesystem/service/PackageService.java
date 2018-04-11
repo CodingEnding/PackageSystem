@@ -127,4 +127,24 @@ public class PackageService {
 		return packageDao.updatePackageById(id, packagePO);
 	}
 	
+	/**
+	 * 获取指定分类的套餐数据
+	 * @param categoryName
+	 * @param categoryValue
+	 * @param limit
+	 * @param page
+	 * @return List<SimplePackageVO>
+	 */
+	public List<SimplePackageVO> getAllSimplePackageByCategory(String categoryName,
+			String categoryValue,int limit,int page){
+		List<SimplePackageVO> simplePackageList=new ArrayList<>();
+		
+		List<PackagePO> packageList=packageDao.findAllByCategory(categoryName,categoryValue,limit,page);
+		for(PackagePO packagePO:packageList){//转换
+			SimplePackageVO simplePackageVO=SimplePackageVO.build(packagePO);//快速构建SimplePackageVO
+			simplePackageList.add(simplePackageVO);
+		}
+		return simplePackageList;
+	}
+	
 }

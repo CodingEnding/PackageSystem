@@ -23,7 +23,7 @@ import com.google.gson.Gson;
  * @author CodingEnding
  */
 @WebServlet(urlPatterns={"/api/v1/app/check"})
-public class AppServlet extends HttpServlet {
+public class AppServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 	public static final String URL_DOWNLOAD="/api/v1/app/download";//下载最新的App版本（GET）[暂时弃用]
     public static final String URL_CHECK="/api/v1/app/check";//检测是否存在更新（GET）
@@ -35,8 +35,9 @@ public class AppServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String servletPath=request.getServletPath();
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/json;charset=utf-8");
+//		response.setCharacterEncoding("UTF-8");
+//		response.setContentType("application/json;charset=utf-8");
+		initCharsetContentType(response);//设置响应的字符编码和内容格式
 		switch (servletPath) {
 		case URL_DOWNLOAD:
 			break;
@@ -53,6 +54,7 @@ public class AppServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		initCharsetContentType(response);//设置响应的字符编码和内容格式
 		doGet(request, response);
 	}
 
@@ -77,10 +79,10 @@ public class AppServlet extends HttpServlet {
 		writeJsonToClient(jsonResponse,response);
 	}
 	
-	//将json数据返回给客户端
-	private void writeJsonToClient(BaseResponse jsonResponse,HttpServletResponse response) throws IOException{
-		String dataJSON=new Gson().toJson(jsonResponse);//将数据对象转化为json字符串
-		response.getWriter().append(dataJSON);
-	}
+//	//将json数据返回给客户端
+//	private void writeJsonToClient(BaseResponse jsonResponse,HttpServletResponse response) throws IOException{
+//		String dataJSON=new Gson().toJson(jsonResponse);//将数据对象转化为json字符串
+//		response.getWriter().append(dataJSON);
+//	}
 
 }

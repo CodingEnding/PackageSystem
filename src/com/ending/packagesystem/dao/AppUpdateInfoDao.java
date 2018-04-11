@@ -21,7 +21,7 @@ public class AppUpdateInfoDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from AppUpdateInfo";
+			String sql="select * from appupdateinfo";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			ResultSet resultSet=statement.executeQuery();
 			if(resultSet.next()){

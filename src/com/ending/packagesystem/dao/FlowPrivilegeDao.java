@@ -24,7 +24,7 @@ public class FlowPrivilegeDao {
 		
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from FlowPrivilege where app_id=? and package_id=?";
+			String sql="select * from flowprivilege where app_id=? and package_id=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,flowPrivilege.getAppId());
 			statement.setInt(2,flowPrivilege.getPackageId());
