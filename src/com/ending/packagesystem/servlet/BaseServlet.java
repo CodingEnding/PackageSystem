@@ -17,6 +17,8 @@ import com.google.gson.Gson;
  * @author CodingEnding
  */
 public abstract class BaseServlet extends HttpServlet{
+	private static final long serialVersionUID = 1L; 
+
 	//将json数据返回给客户端
 	protected void writeJsonToClient(BaseResponse jsonResponse,HttpServletResponse response) throws IOException{
 		String dataJSON=new Gson().toJson(jsonResponse);//将数据对象转化为json字符串

@@ -12,7 +12,7 @@ import com.ending.packagesystem.utils.DBUtils;
 public class AppUpdateInfoDao {
 	
 	/**
-	 * 返回唯一的应用版本信息数据
+	 * 返回最新的应用版本信息数据
 	 * @return AppUpdateInfoPO
 	 */
 	public AppUpdateInfoPO findAppUpdateInfo(){
@@ -21,8 +21,9 @@ public class AppUpdateInfoDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from appupdateinfo";
+			String sql="select * from appupdateinfo order by version_code desc limit ?";//根据版本号降序排列
 			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,1);//只获取最新的一条数据
 			ResultSet resultSet=statement.executeQuery();
 			if(resultSet.next()){
 				appUpdateInfoPO.setId(resultSet.getInt("id"));

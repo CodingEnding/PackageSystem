@@ -1,8 +1,6 @@
 package com.ending.packagesystem.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.dubbo.common.utils.IOUtils;
 import com.ending.packagesystem.config.Config;
 import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.config.StatusCode;
@@ -36,12 +33,12 @@ import com.google.gson.Gson;
 			"/api/v1/package/hot"})
 public class PackageServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
-    public static final String URL_RECOMMEND="/api/v1/package/recommend";//请求推荐（POST）
-    public static final String URL_LIST="/api/v1/package/list";//批量获取套餐（GET）
-    public static final String URL_HOT="/api/v1/package/hot";//批量获取热门套餐（GET）
-    public static final String URL_GET="/api/v1/package/get";//获取指定Id的套餐[精准查询]（GET）
-    public static final String URL_SEARCH="/api/v1/package/search";//获取关键词搜索套餐（GET）
-    public static final String URL_SCORE="/api/v1/package/score";//对指定的套餐进行评分（POST）
+	private static final String URL_RECOMMEND="/api/v1/package/recommend";//请求推荐（POST）
+	private static final String URL_LIST="/api/v1/package/list";//批量获取套餐（GET）
+	private static final String URL_HOT="/api/v1/package/hot";//批量获取热门套餐（GET）
+	private static final String URL_GET="/api/v1/package/get";//获取指定Id的套餐[精准查询]（GET）
+	private static final String URL_SEARCH="/api/v1/package/search";//获取关键词搜索套餐（GET）
+	private static final String URL_SCORE="/api/v1/package/score";//对指定的套餐进行评分（POST）
     
     private PackageService packageService=new PackageService();
     
@@ -95,9 +92,6 @@ public class PackageServlet extends BaseServlet {
 
 	//执行推荐操作
 	private void doRecommend(HttpServletRequest request,HttpServletResponse response) throws IOException{
-//		BufferedReader br=new BufferedReader(new InputStreamReader(request.getInputStream()));
-//		String postBody=IOUtils.read(br);//将上传的post body读取出来
-//		br.close();
 		String postBody=getPostBody(request);//将上传的post body读取出来
 		UserConsumeVO userConsumeVO=new Gson()
 				.fromJson(postBody,UserConsumeVO.class);//解析JSON数据

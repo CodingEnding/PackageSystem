@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Random;
 
 import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.po.UserPO;
@@ -50,7 +49,7 @@ public class UserDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from user where email=?";
+			String sql="select 1 from user where email=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,email);
 			
@@ -78,7 +77,7 @@ public class UserDao {
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
-			String sql="select * from user where email=? and password=?";
+			String sql="select 1 from user where email=? and password=?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,email);
 			statement.setString(2,password);
@@ -98,11 +97,41 @@ public class UserDao {
 	}
 	
 	/**
-	 * TODO
-	 * 通过用户名和SessionToken的组合判断是否有这条数据存在
+	 * 通过邮箱和session组合判断用户令牌是否有效
+	 * 可用于用户身份确认
 	 * @param email
-	 * @param password
+	 * @param sessionToken 用户令牌
 	 */
+	public boolean isSessionValidWithEmail(String email,String sessionToken){
+		boolean isExsit=false;
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select 1 from user where email=? and session_token=? and session_expire> now()";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,email);
+			statement.setString(2,sessionToken);
+			
+			ResultSet resultSet=statement.executeQuery();
+			if(resultSet.next()){
+				isExsit=true;
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return isExsit;
+	}
+	
+//	/**
+//	 * TODO
+//	 * 通过用户名和SessionToken的组合判断是否有这条数据存在
+//	 * @param email
+//	 * @param password
+//	 */
 //	public boolean isExsitWithSession(String email,String password){
 //		boolean isExsit=false;
 //		Connection connection=null;

@@ -13,4 +13,6 @@ public interface StatusCode {
 	int CODE_REGISTER_ERROR=5400;//注册失败
 	int CODE_EMAIL_EXSIT=5401;//邮箱已存在（注册功能）
 	int CODE_LOGIN_ERROR=5500;//登录失败
+	int CODE_DEVICE_BACKUP_ERROR=5600;//设备信息更新失败
+	int CODE_NO_PRIVILEGE=7000;//缺少用户权限
 }

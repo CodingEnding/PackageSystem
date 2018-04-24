@@ -2,6 +2,10 @@ package com.ending.packagesystem.utils;
 
 import java.io.File;
 
+/**
+ * 与文件相关的工具类
+ * @author CodingEnding
+ */
 public class FileUtils {
 	private FileUtils(){}
 	
@@ -19,7 +23,7 @@ public class FileUtils {
    }
    
    /**
-    * @param path 路径
+    * @param file 文件对象
     * @return  返回文件大小
     */
    public static long getFileSize(File file) {

@@ -1,5 +1,9 @@
 package com.ending.packagesystem.utils;
 
+/**
+ * 与文本相关的工具类
+ * @author CodingEnding
+ */
 public class TextUtils {
 	private TextUtils(){}
 	

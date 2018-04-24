@@ -22,9 +22,9 @@ import com.google.gson.Gson;
 		"/api/v1/user/register","/api/v1/user/forget"})
 public class UserServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
-	public static final String URL_LOGIN="/api/v1/user/login";//用户登录（GET）
-    public static final String URL_REGISTER="/api/v1/user/register";//用户注册（POST）
-    public static final String URL_FORGET="/api/v1/user/forget";//找回密码（POST）
+	private static final String URL_LOGIN="/api/v1/user/login";//用户登录（GET）
+	private static final String URL_REGISTER="/api/v1/user/register";//用户注册（POST）
+	private static final String URL_FORGET="/api/v1/user/forget";//找回密码（POST）
        
     private UserService userService=new UserService();
     

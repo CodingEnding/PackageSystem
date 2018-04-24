@@ -2,7 +2,6 @@ package com.ending.packagesystem.utils;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Random;
 
 import com.ending.packagesystem.config.Config;

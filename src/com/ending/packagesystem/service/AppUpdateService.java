@@ -31,11 +31,12 @@ public class AppUpdateService {
 			resultInfo.setId(Constants.QUERY_ERROR_ID);
 			return resultInfo;
 		}
+		DebugUtils.println(TAG,"serverVersionCode:"+appUpdateInfoPO.getVersionCode());
 		//查询正常情况下的逻辑
 		if(versionCode<appUpdateInfoPO.getVersionCode()){//客户端的版本小于当前最新版本
-			resultInfo.setHasUpdate(false);//只需要告诉客户端不存在更新
+			resultInfo.setHasUpdate(true);//此时通知客户端存在更新
 		}else{
-			resultInfo.setHasUpdate(true);
+			resultInfo.setHasUpdate(false);
 		}
 		resultInfo.setId(appUpdateInfoPO.getId());
 		resultInfo.setAutoInstall(oneToTrue(appUpdateInfoPO.getAutoInstall()));
