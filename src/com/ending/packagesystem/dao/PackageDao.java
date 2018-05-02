@@ -10,6 +10,7 @@ import java.util.List;
 import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.po.PackagePO;
 import com.ending.packagesystem.utils.DBUtils;
+import com.ending.packagesystem.utils.DebugUtils;
 
 public class PackageDao {
 	/**
@@ -88,20 +89,25 @@ public class PackageDao {
 	/**
 	 * 根据关键词返回所有套餐
 	 * @param key
-	 * @return
+	 * @param limit
+	 * @param page
 	 */
-	public List<PackagePO> findAllByKey(String key){
+	public List<PackagePO> findAllByKey(String key,int limit,int page){
 		List<PackagePO> packageList=new ArrayList<>();
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
 			String sql="select * from package where name like ?"
-					+ "or operator like ? or partner like ?";
+					+ "or operator like ? or partner like ? limit ? offset ?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			String keyParameter="%"+key+"%";//传入的参数需要先添加两侧的通配符
 			statement.setString(1,keyParameter);
 			statement.setString(2,keyParameter);
 			statement.setString(3,keyParameter);
+			statement.setInt(4,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(5,offsetNum);
+			
 			ResultSet resultSet=statement.executeQuery();
 			while(resultSet.next()){
 				PackagePO packagePO=new PackagePO();
@@ -156,6 +162,86 @@ public class PackageDao {
 	}
 	
 	/**
+	 * 根据extra_flow_type获取套餐列表
+	 * @param flowTypeList 包含多个extra_flow_type
+	 * @param limit
+	 * @param page
+	 * @return
+	 */
+	public List<PackagePO> findAllByExtraType(List<Integer> flowTypeList,int limit,int page){
+		List<PackagePO> packageList=new ArrayList<>();
+		if(flowTypeList==null||flowTypeList.isEmpty()){//边界情况
+			return packageList;
+		}
+		Connection connection=null;
+		
+		//生成关于extraflowtype相关的预查询语句 TODO 暂时使用extra_flow_type_id
+		String flowTypeQuery="extra_flow_type_id=?";
+		for(int i=1;i<flowTypeList.size();i++){
+			flowTypeQuery+=" or extra_flow_type_id=?";
+		}
+//		DebugUtils.println("PackageDao",flowTypeQuery);
+		try {
+			connection=DBUtils.getConnection();
+			String sql=String.format("select * from package where %s limit ? offset ?",flowTypeQuery);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			
+			for(int i=0;i<flowTypeList.size();i++){//逐个注入值
+				statement.setInt(i+1,flowTypeList.get(i));
+			}
+			int size=flowTypeList.size();
+			statement.setInt(size+1,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(size+2,offsetNum);
+			
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO,resultSet);//为PackagePO设置属性
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		return packageList;
+	}
+	
+	/**
+	 * 根据free_flow_type返回套餐列表
+	 */
+	public List<PackagePO> findAllByFreeFlow(int freFlow,int limit,int page){
+		List<PackagePO> packageList=new ArrayList<>();
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from package where free_flow_type=? limit ? offset ?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,freFlow);
+			statement.setInt(2,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(3,offsetNum);
+			
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO,resultSet);//为PackagePO设置属性
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		return packageList;
+	}
+	
+	/**
 	 * 返回所有的套餐
 	 * @return List<PackagePO>
 	 */
@@ -183,21 +269,54 @@ public class PackageDao {
 	}
 	
 	/**
+	 * 返回所有的套餐（有limit和page）
+	 */
+	public List<PackagePO> findAll(int limit,int page){
+		Connection connection=null;
+		List<PackagePO> packageList=new ArrayList<>();
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select * from package limit ? offset ?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(2,offsetNum);
+			
+			ResultSet resultSet=statement.executeQuery();
+			while(resultSet.next()){
+				PackagePO packagePO=new PackagePO();
+				deployPackagePO(packagePO, resultSet);
+				packageList.add(packagePO);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally{
+			DBUtils.closeConnection(connection);
+		}
+		return packageList;
+	}
+	
+	/**
 	 * 根据排序条件，返回TOP-N个数据
 	 * @param orderColumn 作为排序依据的列名
 	 * @param limit 返回的数据条数
-	 * @return
+	 * @param page 页码
 	 */
-	public List<PackagePO> findAllTopPackage(String orderColumn,int limit){
+	public List<PackagePO> findAllTopPackage(String orderColumn,int limit,int page){
 		List<PackagePO> packageList=new ArrayList<>();
 		Connection connection=null;
 		try {
 			connection=DBUtils.getConnection();
 			String sql="select * from package where operator != '中国移动' "
-					+ "order by ? DESC limit ?";//TODO 暂时不让中国移动参与排序
+					+ "order by ? DESC limit ? offset ?";//TODO 暂时不让中国移动参与排序
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,orderColumn);
 			statement.setInt(2,limit);
+			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			statement.setInt(3,offsetNum);
+			
 			ResultSet resultSet=statement.executeQuery();
 			while(resultSet.next()){
 				PackagePO packagePO=new PackagePO();

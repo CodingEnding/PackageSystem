@@ -1,6 +1,7 @@
 package com.ending.packagesystem.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.ending.packagesystem.config.Constants;
@@ -18,7 +19,13 @@ import com.ending.packagesystem.vo.SimplePackageVO;
 public class PackageService {
 	private PackageDao packageDao=new PackageDao();
 	private PackageScoreDao packageScoreDao=new PackageScoreDao();
-	
+
+	public static final String CATEGORY_NAME_SINGLE="SINGLE_CATEGORY";//单分类情况下的category_name（比如查询日租卡、免流特权卡...）
+	public static final String CATEGORY_DAY_RENT="DAY_RENT";//[分类]日租卡
+	public static final String CATEGORY_FREE_FLOW="FREE_FLOW";//[分类]免流特权卡
+	public static final String CATEGORY_INFINITE_FLOW="INFINITE_FLOW";//[分类]无限流量卡
+	public static final String CATEGORY_ALL="ALL";//[分类]全部种类
+
 	/**
 	 * 获取所有套餐
 	 * @return List<PackagePO>
@@ -26,7 +33,7 @@ public class PackageService {
 	public List<PackagePO> getAllPackage(){
 		return packageDao.findAll();
 	}
-	
+
 	/**
 	 * 获取指定运营商的所有套餐
 	 * @return List<PackagePO>
@@ -34,15 +41,15 @@ public class PackageService {
 	public List<PackagePO> getAllPackageByOperator(List<String> operatorList){
 		return packageDao.findAllByOperator(operatorList);
 	}
-	
+
 	/**
 	 * 获取热门套餐
 	 * @param limit 最大数据条数
-	 * @return
+	 * @param page 页码
 	 */
-	public List<SimplePackageVO> getAllHotPackage(int limit){
+	public List<SimplePackageVO> getAllHotPackage(int limit,int page){
 		List<PackagePO> packageList=packageDao.findAllTopPackage(
-				Constants.PACKAGE_COLUMN_STAR,limit);
+				Constants.PACKAGE_COLUMN_STAR,limit,page);
 		List<SimplePackageVO> simplePackageList=new ArrayList<>();
 		for(PackagePO packagePO:packageList){//将PackagePO转化为SimplePackageVO
 			SimplePackageVO simplePackageVO=SimplePackageVO.build(packagePO);//快速构建SimplePackageVO
@@ -50,7 +57,7 @@ public class PackageService {
 		}
 		return simplePackageList;
 	}
-	
+
 	/**
 	 * 获取指定id的套餐PackagePO
 	 * @param id
@@ -59,7 +66,7 @@ public class PackageService {
 	public PackagePO getPackageById(int id){
 		return packageDao.findPackageById(id);
 	}
-	
+
 	/**
 	 * 获取指定id的套餐
 	 * 返回的PackageVO主要用于客户端展示
@@ -78,21 +85,23 @@ public class PackageService {
 		}
 		return packageVO;
 	}
-	
+
 	/**
 	 * 根据关键词查询套餐数据
 	 * @param key
+	 * @param limit
+	 * @param page
 	 */
-	public List<SimplePackageVO> getAllSimplePackageByKey(String key){
+	public List<SimplePackageVO> getAllSimplePackageByKey(String key,int limit,int page){
 		List<SimplePackageVO> simplePackageList=new ArrayList<>();
-		List<PackagePO> packageList=packageDao.findAllByKey(key);
+		List<PackagePO> packageList=packageDao.findAllByKey(key,limit,page);
 		for(PackagePO packagePO:packageList){
 			SimplePackageVO simplePackageVO=SimplePackageVO.build(packagePO);//快速构建SimplePackageVO
 			simplePackageList.add(simplePackageVO);
 		}
 		return simplePackageList;
 	}
-	
+
 	/**
 	 * 为指定套餐评分
 	 * @param score 评分
@@ -107,7 +116,7 @@ public class PackageService {
 		packageScorePO.setPackageId(packageId);
 		return packageScoreDao.insert(packageScorePO);
 	}
-	
+
 	/**
 	 * 根据套餐Id获取其所有的评分数据
 	 * @param packageId
@@ -116,7 +125,7 @@ public class PackageService {
 	public List<PackageScorePO> getAllPackageScore(int packageId){
 		return packageScoreDao.findAll(packageId);
 	}
-	
+
 	/**
 	 * 更新指定Id的套餐数据
 	 * @param id
@@ -126,7 +135,7 @@ public class PackageService {
 	public boolean updatePackageById(int id,PackagePO packagePO){
 		return packageDao.updatePackageById(id, packagePO);
 	}
-	
+
 	/**
 	 * 获取指定分类的套餐数据
 	 * @param categoryName
@@ -138,13 +147,44 @@ public class PackageService {
 	public List<SimplePackageVO> getAllSimplePackageByCategory(String categoryName,
 			String categoryValue,int limit,int page){
 		List<SimplePackageVO> simplePackageList=new ArrayList<>();
+		List<PackagePO> packageList=null;
 		
-		List<PackagePO> packageList=packageDao.findAllByCategory(categoryName,categoryValue,limit,page);
-		for(PackagePO packagePO:packageList){//转换
+		//根据分类浏览的方式执行不同操作
+		if(categoryName.equals(CATEGORY_NAME_SINGLE)){//单分类模式（如日租卡）
+			packageList=getAllPackageBySingleCategory(categoryValue,limit,page);
+		}else{//常规分类模式（如按照运营商、合作方分类）
+			packageList=packageDao.findAllByCategory(categoryName,categoryValue,limit,page);
+		}
+
+		//将PackagePO批量转换为SimplePackageVO
+		for(PackagePO packagePO:packageList){
 			SimplePackageVO simplePackageVO=SimplePackageVO.build(packagePO);//快速构建SimplePackageVO
 			simplePackageList.add(simplePackageVO);
 		}
 		return simplePackageList;
 	}
 	
+	//根据一个单独的类别获取相应的套餐列表
+	private List<PackagePO> getAllPackageBySingleCategory(String categoryValue,int limit,int page){
+		List<PackagePO> dataList=new ArrayList<>();
+		switch (categoryValue) {
+		case CATEGORY_DAY_RENT://日租卡
+			List<Integer> dayRentTypeList=Arrays.asList(2,3,4,6,7);
+			dataList=packageDao.findAllByExtraType(dayRentTypeList,limit,page);
+			break;
+		case CATEGORY_FREE_FLOW://免流特权
+			dataList=packageDao.findAllByFreeFlow(PackagePO.FLOW_TYPE_FREE,limit,page);
+			break;
+		case CATEGORY_INFINITE_FLOW://无限流量
+			List<Integer> infiniteTypeList=Arrays.asList(5,6,7);
+			dataList=packageDao.findAllByExtraType(infiniteTypeList,limit,page);
+			break;
+		case CATEGORY_ALL://全部
+		default:
+			dataList=packageDao.findAll(limit,page);
+			break;
+		}
+		return dataList;
+	}
+
 }

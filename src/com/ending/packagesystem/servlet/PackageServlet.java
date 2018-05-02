@@ -109,9 +109,11 @@ public class PackageServlet extends BaseServlet {
 	
 	//获取热门套餐
 	private void doQueryHot(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		int limit=MathUtils.legalIntNum(request.getParameter("limit"),Config.HOT_PACKAGE_COUNT);
+		int page=MathUtils.legalIntNum(request.getParameter("page"),1);
 		//将结果以json格式返回
 		List<SimplePackageVO> dataList=packageService
-				.getAllHotPackage(Config.HOT_PACKAGE_COUNT);
+				.getAllHotPackage(limit,page);
 		DataResponse<List<SimplePackageVO>> jsonResponse;
 		if(dataList.isEmpty()){//此时说明查询结果为空
 			jsonResponse=new DataResponse<List<SimplePackageVO>>(false,StatusCode.CODE_QUERY_NONE,dataList);
@@ -173,10 +175,12 @@ public class PackageServlet extends BaseServlet {
 	
 	//根据关键词查询套餐
 	private void doSearch(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		int limit=MathUtils.legalIntNum(request.getParameter("limit"),Config.SEARCH_PACKAGE_COUNT);
+		int page=MathUtils.legalIntNum(request.getParameter("page"),1);
 		String key=request.getParameter("key");//关键词
 		
 		//将结果以json格式返回
-		List<SimplePackageVO> simplePackageList=packageService.getAllSimplePackageByKey(key);
+		List<SimplePackageVO> simplePackageList=packageService.getAllSimplePackageByKey(key,limit,page);
 		DataResponse<List<SimplePackageVO>> jsonResponse;
 		if(simplePackageList.isEmpty()){//此时说明查询结果为空
 			jsonResponse=new DataResponse<List<SimplePackageVO>>(false,StatusCode.CODE_QUERY_NONE,simplePackageList);
