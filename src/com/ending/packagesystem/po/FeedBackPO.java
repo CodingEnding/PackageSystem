@@ -7,8 +7,16 @@ package com.ending.packagesystem.po;
 public class FeedBackPO {
 	private int id;
 	private int deviceId;//（外键）设备id
+	private int userId;//（外键）用户id
 	private String content;//反馈内容
 	
+	public FeedBackPO() {
+	}
+	public FeedBackPO(int deviceId, int userId, String content) {
+		this.deviceId = deviceId;
+		this.userId = userId;
+		this.content = content;
+	}
 	public int getId() {
 		return id;
 	}
@@ -26,6 +34,12 @@ public class FeedBackPO {
 	}
 	public void setContent(String content) {
 		this.content = content;
+	}
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 	
 }

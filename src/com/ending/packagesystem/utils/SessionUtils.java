@@ -30,8 +30,17 @@ public class SessionUtils {
 	 * 创造Session有效期
 	 */
 	public static Timestamp createSessionExpire(){
+		return createSessionExpire(Calendar.YEAR,Config.SESSION_EXPIRE_YEAR);
+	}
+	
+	/**
+	 * 创造指定时间段的Session有效期
+	 * @param field 对应Calendar中的字段（如：Calendar.YEAR）
+	 * @param amount 该字段的数量
+	 */
+	public static Timestamp createSessionExpire(int field,int amount){
 		Calendar calendar=Calendar.getInstance();
-		calendar.add(Calendar.YEAR,Config.SESSION_EXPIRE_YEAR);//推迟到有效期后
+		calendar.add(field,amount);//推迟到有效期后
 		Timestamp timestamp=new Timestamp(calendar.getTimeInMillis());
 		return timestamp;
 	}

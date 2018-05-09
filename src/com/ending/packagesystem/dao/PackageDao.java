@@ -10,7 +10,7 @@ import java.util.List;
 import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.po.PackagePO;
 import com.ending.packagesystem.utils.DBUtils;
-import com.ending.packagesystem.utils.DebugUtils;
+import com.ending.packagesystem.utils.MathUtils;
 
 public class PackageDao {
 	/**
@@ -105,7 +105,7 @@ public class PackageDao {
 			statement.setString(2,keyParameter);
 			statement.setString(3,keyParameter);
 			statement.setInt(4,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(5,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();
@@ -142,7 +142,7 @@ public class PackageDao {
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,categoryValue);
 			statement.setInt(2,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(3,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();
@@ -191,7 +191,7 @@ public class PackageDao {
 			}
 			int size=flowTypeList.size();
 			statement.setInt(size+1,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(size+2,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();
@@ -222,7 +222,7 @@ public class PackageDao {
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,freFlow);
 			statement.setInt(2,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(3,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();
@@ -279,7 +279,7 @@ public class PackageDao {
 			String sql="select * from package limit ? offset ?";
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setInt(1,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(2,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();
@@ -314,7 +314,7 @@ public class PackageDao {
 			PreparedStatement statement=connection.prepareStatement(sql);
 			statement.setString(1,orderColumn);
 			statement.setInt(2,limit);
-			int offsetNum=(page-1)*limit;//计算需要跳过的条目数
+			int offsetNum=MathUtils.positiveNum((page-1)*limit);//计算需要跳过的条目数
 			statement.setInt(3,offsetNum);
 			
 			ResultSet resultSet=statement.executeQuery();

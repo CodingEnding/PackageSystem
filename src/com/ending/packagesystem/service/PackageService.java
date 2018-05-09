@@ -114,7 +114,14 @@ public class PackageService {
 		packageScorePO.setScore(score);
 		packageScorePO.setUserId(userId);
 		packageScorePO.setPackageId(packageId);
-		return packageScoreDao.insert(packageScorePO);
+		
+		boolean isSucceed=false;
+		if(packageScoreDao.isExsit(packageScorePO)){//数据已存在则更新评分
+			isSucceed=packageScoreDao.update(packageScorePO);
+		}else{
+			isSucceed=packageScoreDao.insert(packageScorePO);
+		}
+		return isSucceed;
 	}
 
 	/**
@@ -148,7 +155,7 @@ public class PackageService {
 			String categoryValue,int limit,int page){
 		List<SimplePackageVO> simplePackageList=new ArrayList<>();
 		List<PackagePO> packageList=null;
-		
+
 		//根据分类浏览的方式执行不同操作
 		if(categoryName.equals(CATEGORY_NAME_SINGLE)){//单分类模式（如日租卡）
 			packageList=getAllPackageBySingleCategory(categoryValue,limit,page);
@@ -163,7 +170,7 @@ public class PackageService {
 		}
 		return simplePackageList;
 	}
-	
+
 	//根据一个单独的类别获取相应的套餐列表
 	private List<PackagePO> getAllPackageBySingleCategory(String categoryValue,int limit,int page){
 		List<PackagePO> dataList=new ArrayList<>();

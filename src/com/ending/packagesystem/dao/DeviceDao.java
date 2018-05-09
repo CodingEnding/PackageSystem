@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ending.packagesystem.config.Constants;
 import com.ending.packagesystem.po.DevicePO;
 import com.ending.packagesystem.utils.DBUtils;
 
@@ -156,6 +157,33 @@ public class DeviceDao {
 		}
 		return isSucceed;
 	}
+	
+	/**
+	 * 通过deviceFinger获取指定设备的Id
+	 */
+	public int findDeviceIdByEmail(String deviceFinger){
+		Connection connection=null;
+		int id=Constants.QUERY_ERROR_ID;//默认设置为异常值，在查询失败时调用者可以察觉);
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select id from device where device_finger=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,deviceFinger);
+			
+			ResultSet resultSet=statement.executeQuery();
+			if(resultSet.next()){
+				id=resultSet.getInt("id");
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return id;
+	}
+	
 	
 	/**
 	 * 根据UserId获取设备列表

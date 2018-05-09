@@ -126,6 +126,36 @@ public class UserDao {
 		return isExsit;
 	}
 	
+	/**
+	 * 通过邮箱和密码组合判断用户身份是否有效
+	 * 可用于用户身份确认
+	 * @param email
+	 * @param password 密码
+	 */
+	public boolean isPwdValidWithEmail(String email,String password){
+		boolean isExsit=false;
+		Connection connection=null;
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select 1 from user where email=? and password=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,email);
+			statement.setString(2,password);
+			
+			ResultSet resultSet=statement.executeQuery();
+			if(resultSet.next()){
+				isExsit=true;
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return isExsit;
+	}
+	
 //	/**
 //	 * TODO
 //	 * 通过用户名和SessionToken的组合判断是否有这条数据存在
@@ -189,6 +219,67 @@ public class UserDao {
 	}
 	
 	/**
+	 * 根据邮箱修改指定列的数据
+	 * @param email
+	 * @param columnName
+	 * @param value
+	 * @return 是否修改成功
+	 */
+	public boolean updateInfoByEmail(String email,String columnName,String value){
+		Connection connection=null;
+		boolean isSucceed=false;
+		
+		try {
+			connection=DBUtils.getConnection();
+			String sql=String.format("update user set %s=? where email=?",columnName);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,value);
+			statement.setString(2,email);
+			
+			int end=statement.executeUpdate();
+			if(end==1){
+				isSucceed=true;
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return isSucceed;
+	}
+	
+	/**
+	 * 根据邮箱修改密码
+	 * @return 是否修改成功
+	 */
+	public boolean updatePwdByEmail(String email,String password){
+		Connection connection=null;
+		boolean isSucceed=false;
+		
+		try {
+			connection=DBUtils.getConnection();
+			String sql="update user set password=? where email=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,password);
+			statement.setString(2,email);
+			
+			int end=statement.executeUpdate();
+			if(end==1){
+				isSucceed=true;
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return isSucceed;
+	}
+	
+	/**
 	 * 通过id获取指定用户（不包含password和session过期时间）
 	 * @param id
 	 * @return
@@ -217,8 +308,6 @@ public class UserDao {
 	
 	/**
 	 * 通过email获取指定用户（不包含password和session过期时间）
-	 * @param id
-	 * @return
 	 */
 	public UserPO findUserByEmail(String email){
 		Connection connection=null;
@@ -240,6 +329,32 @@ public class UserDao {
 			DBUtils.closeConnection(connection);
 		}
 		return userPO;
+	}
+	
+	/**
+	 * 通过email获取指定用户的Id
+	 */
+	public int findUserIdByEmail(String email){
+		Connection connection=null;
+		int id=Constants.QUERY_ERROR_ID;//默认设置为异常值，在查询失败时调用者可以察觉);
+		try {
+			connection=DBUtils.getConnection();
+			String sql="select id from user where email=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,email);
+			
+			ResultSet resultSet=statement.executeQuery();
+			if(resultSet.next()){
+				id=resultSet.getInt("id");
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBUtils.closeConnection(connection);
+		}
+		return id;
 	}
 	
 	//绑定数据
