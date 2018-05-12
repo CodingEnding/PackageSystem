@@ -123,6 +123,25 @@ public class PackageService {
 		}
 		return isSucceed;
 	}
+	
+	/**
+	 * 获取指定用户对指定套餐的评分
+	 * @param userId
+	 * @param packageId
+	 * @return 返回套餐评分对象
+	 */
+	public PackageScorePO getMyScore(int userId,int packageId){
+		return packageScoreDao.findByUserId(userId,packageId);
+	}
+	
+	/**
+	 * 获取指定套餐的评分数量
+	 * @param packageId
+	 * @return 套餐评分数量或非法状态码
+	 */
+	public int getScoreCount(int packageId){
+		return packageScoreDao.findScoreCountByPackageId(packageId);
+	}
 
 	/**
 	 * 根据套餐Id获取其所有的评分数据
